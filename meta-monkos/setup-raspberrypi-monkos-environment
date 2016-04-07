@@ -1,0 +1,47 @@
+#!/bin/sh
+
+if [ "$0" = "${BASH_SOURCE}" ]; then
+    echo -e "\nThe Script need to be sourced as follows"
+    echo -e "\n. $0 \nor \nsource $0"
+    exit 1
+fi
+
+if [ -z "$BASH" ] ;then
+    echo -e "Please use a bash shell\n"
+    return 1
+fi
+
+if [ "$(whoami)" = "root" ] ;then
+    echo -e "You are runing this script as root. Please exit from root and run the script"
+    return 1
+fi
+
+if [ ! -d meta-raspberrypi] ;then
+    echo "Error: meta-raspberry is not present"
+    echo "do git clone git://git.yoctoproject.org/meta-raspberrypi to get the files"
+fi
+
+#unset MACHINE
+#MACHINE=
+while [ -z "$MACHINE" ]; do
+    _options=$(ls -1 meta-raspberrypi/conf/machine/*.conf 2>/dev/null)
+    _options_count=`echo ${_options} | wc -w`
+    PS3="Please enter your choice of machine [1..${_options_count}]: "
+    select opt in `echo $_options`
+    do
+        if [ -z "$opt" ]; then
+            echo "Invalid choice"
+        else
+            MACHINE=$(echo $opt | sed 's|.*/\(.*\)\.conf|\1|')
+            break;
+        fi
+    done
+    unset PS3 _options_count _options
+done
+
+_build_dir=build-$MACHINE
+
+source meta-monkos/setup-monkos-environment $_build_dir
+if [ $? -eq 1 ]; then
+    echo "BBLAYERS =+ \"\${SOURCEROOT}/meta-raspberrypi\"" >> conf/bblayers.conf
+fi

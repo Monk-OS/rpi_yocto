@@ -1,0 +1,45 @@
+#!/bin/sh
+
+if [ "$0" = "${BASH_SOURCE}" ]; then
+    echo -e "\nThe Script need to be sourced as follows"
+    echo -e "\n. $0 \nor \nsource $0"
+    exit 1
+fi
+
+if [ -z "$BASH" ] ;then
+    echo -e "Please use a bash shell\n"
+    return 1
+fi
+
+if [ "$(whoami)" = "root" ] ;then
+    echo -e "You are runing this script as root. Please exit from root and run the script"
+    return 1
+fi
+
+build_dir=
+configured_once=
+echo $#
+if [ $# -eq 1 ]; then
+    build_dir=$1
+    if [ -f $build_dir/conf/local.conf ] && \
+       [ -f $_BUILDDIR/conf/bblayers.conf ]; then
+       configured_once="true"
+    fi
+else
+    echo -e "This script will take only one argument as input."
+    return 1
+fi
+
+PREV_FOLDER=$(pwd)
+
+TEMPLATECONF=${PREV_FOLDER}/meta-monkos/conf source meta-oe/oe-init-build-env $build_dir
+
+#if configured once then we are done here
+if [ $configured_once -eq "true" ]; then
+    return 0
+fi
+
+# Change settings according environment
+sed -e "s/##MACHINE_TEMPLATE##/$MACHINE/g" -i conf/local.conf
+
+return 1
