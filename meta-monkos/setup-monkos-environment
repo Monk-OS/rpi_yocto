@@ -17,7 +17,7 @@ if [ "$(whoami)" = "root" ] ;then
 fi
 
 build_dir=
-configured_once=
+configured_once="false"
 echo $#
 if [ $# -eq 1 ]; then
     build_dir=$1
@@ -35,7 +35,7 @@ PREV_FOLDER=$(pwd)
 TEMPLATECONF=${PREV_FOLDER}/meta-monkos/conf source meta-oe/oe-init-build-env $build_dir
 
 #if configured once then we are done here
-if [ $configured_once -eq "true" ]; then
+if [ $configured_once == "true" ]; then
     return 0
 fi
 
