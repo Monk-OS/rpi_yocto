@@ -16,7 +16,7 @@ if [ "$(whoami)" = "root" ] ;then
     return 1
 fi
 
-if [ ! -d meta-raspberrypi] ;then
+if [ ! -d "meta-raspberrypi" ] ;then
     echo "Error: meta-raspberry is not present"
     echo "do git clone git://git.yoctoproject.org/meta-raspberrypi to get the files"
 fi
